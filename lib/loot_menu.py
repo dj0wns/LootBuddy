@@ -52,7 +52,7 @@ class LootMenu:
   def update_options(self,raid,boss):
     self.raid_list = self.loot_db.get_raid_list()
     self.boss_list = self.loot_db.get_boss_list(raid)
-    self.item_list = self.loot_db.get_item_list(boss)
+    self.item_list = self.loot_db.get_loot_list_for_boss(boss)
     self.raid_names = [raid[1] for raid in self.raid_list]
     self.boss_names = [boss[1] for boss in self.boss_list]
     self.item_names = [item[1] for item in self.item_list]
