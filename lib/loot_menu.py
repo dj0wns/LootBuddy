@@ -56,8 +56,6 @@ class LootMenu:
     self.raid_names = [raid[1] for raid in self.raid_list]
     self.boss_names = [boss[1] for boss in self.boss_list]
     self.item_names = [item[1] for item in self.item_list]
-
-    print(self.item_list)
     
     self.selected_raid.set(self.raid_names[raid-1]) #adjust for 1 indexed
     self.selected_boss.set(self.boss_names[boss-1]) #adjust for 1 indexed
