@@ -11,6 +11,21 @@ class LootDB:
   def init_db(self):
     sql_commands = []
     sql_commands.append("PRAGMA foreign_keys = ON;")
+    #classes table
+    sql_commands.append(""" CREATE TABLE IF NOT EXISTS classes (
+                              id integer NOT NULL PRIMARY KEY,
+                              name text UNIQUE NOT NULL COLLATE NOCASE
+                              );""")
+    sql_commands.append(""" INSERT OR IGNORE INTO classes (id, name) VALUES
+                            (0, "Druid"),
+                            (1, "Hunter"),
+                            (2, "Mage"),
+                            (3, "Paladin"),
+                            (4, "Priest"),
+                            (5, "Rogue"),
+                            (6, "Shaman"),
+                            (7, "Warlock"),
+                            (8, "Warrior"); """)
     #raids table
     sql_commands.append(""" CREATE TABLE IF NOT EXISTS raids (
                               id integer NOT NULL PRIMARY KEY,
@@ -77,7 +92,9 @@ class LootDB:
     sql_commands.append(""" CREATE TABLE IF NOT EXISTS players (
                               id integer NOT NULL PRIMARY KEY,
                               name text UNIQUE NOT NULL COLLATE NOCASE,
-                              last_updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+                              class integer NOT NULL,
+                              last_updated datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                              CONSTRAINT fk_class FOREIGN KEY(class) REFERENCES classes(id) ON DELETE CASCADE
                               ) WITHOUT ROWID;""")
     #equipped item table
     sql_commands.append(""" CREATE TABLE IF NOT EXISTS playergear (
@@ -186,10 +203,10 @@ class LootDB:
     args = args + (item_id,)
     self.command_queue.append([command, args])
 
-  def queue_add_player(self, id, name):
-    self.command_queue.append([""" INSERT OR IGNORE INTO players(id, name)
-                                 values(?, ?) """,
-                               (id, name)])
+  def queue_add_player(self, id, name, class_name):
+    self.command_queue.append([""" INSERT OR IGNORE INTO players(id, name, class)
+                                 values(?, ?, (SELECT id FROM classes WHERE name=?)) """,
+                               (id, name, class_name)])
   
   def queue_add_item_by_id(self, id):
     self.command_queue.append([""" INSERT OR IGNORE INTO items(id)

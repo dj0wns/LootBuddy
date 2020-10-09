@@ -2,7 +2,7 @@ import os
 import tkinter
 import tkinter.filedialog
 import json
-from lib import loot_db, loot_menu, wcl_api, wowhead_api, blizz_api
+from lib import loot_db, loot_menu, db_widget, wcl_api, wowhead_api, blizz_api
 
 fpath = os.path.realpath(__file__)
 path = os.path.dirname(fpath)
@@ -15,7 +15,7 @@ WCL_SECRET_FILE = os.path.join(path,"wcl_secret.txt")
 BLIZZ_TOKEN_FILE = os.path.join(path,"blizz_client.txt") 
 BLIZZ_SECRET_FILE = os.path.join(path,"blizz_secret.txt")
 
-WINDOW_TITLE = "No Dice Loot Extravaganza"
+WINDOW_TITLE = "Loot Buddy!"
 
 def parse_tooltip(tooltip):
   #returns a dict of all stats the item has
@@ -108,11 +108,10 @@ if __name__ == '__main__':
   loot_db_.populate_items_in_db(BOSS_ITEMS, blizz_api_)
   
   wcl_api_ = wcl_api.WarcraftLogsApiHandle(WCL_TOKEN_FILE, WCL_SECRET_FILE)
-  wcl_api_.download_report("AhRtXNmMDfznxdFG", loot_db_)
 
 
   
-  resolve_items(loot_db_)
+  #resolve_items(loot_db_)
 
 
   def loot_recommendation_callback():
@@ -124,9 +123,11 @@ if __name__ == '__main__':
   tk.geometry("720x480")
   tk.grid_columnconfigure(0, weight=1)
   tk.grid_columnconfigure(1, weight=1)
-  tk.grid_rowconfigure(0, weight=1)
+  tk.grid_rowconfigure(0, weight=10)
+  tk.grid_rowconfigure(1, weight=2)
   tk.title(WINDOW_TITLE)
   left_frame = loot_menu.LootMenu(tk, 0, 0, loot_db_, loot_recommendation_callback)
+  db_frame = db_widget.DBWidget(tk, 0, 1, loot_db_, wcl_api_)
 
   tk.mainloop()
   
