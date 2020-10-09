@@ -81,26 +81,6 @@ def parse_tooltip(tooltip):
 
   return stats
 
-def resolve_items(loot_db):
-  #Get and parse wowhead tooltips
-  item_list = loot_db.get_unresolved_item_ids()
-  for item in item_list:
-    if not item[0]:
-      #empty slot, ignore
-      continue
-    name, tooltip_dict = wowhead_api.get_tooltip_from_item_id(item[0])
-    if not tooltip_dict:
-      #reached error, end update but make sure to update valid queries
-      break;
-    stats = parse_tooltip(tooltip_dict)
-    stats["name"] = name #make sure to update name aswell
-    loot_db.queue_update_item(item[0], stats)
-    print(stats) #kind of like a progress tracker i guess
-  loot_db.execute_queue()
-
-
-
-
 if __name__ == '__main__':
   blizz_api_ = blizz_api.BlizzardApiHandle(BLIZZ_TOKEN_FILE, BLIZZ_SECRET_FILE)
   
@@ -110,12 +90,26 @@ if __name__ == '__main__':
   wcl_api_ = wcl_api.WarcraftLogsApiHandle(WCL_TOKEN_FILE, WCL_SECRET_FILE)
 
 
-  
-  #resolve_items(loot_db_)
-
-
   def loot_recommendation_callback():
     None
+
+  def resolve_items():
+    #Get and parse wowhead tooltips
+    item_list = loot_db_.get_unresolved_item_ids()
+    for item in item_list:
+      if not item[0]:
+        #empty slot, ignore
+        continue
+      name, tooltip_dict = wowhead_api.get_tooltip_from_item_id(item[0])
+      if not tooltip_dict:
+        #reached error, end update but make sure to update valid queries
+        break;
+      stats = parse_tooltip(tooltip_dict)
+      stats["name"] = name #make sure to update name aswell
+      loot_db_.queue_update_item(item[0], stats)
+      print(stats) #kind of like a progress tracker i guess
+      loot_db_.execute_queue()
+  
   #build window root
   #left frame is item selector
   #right frame is best replacements + current item
@@ -127,7 +121,7 @@ if __name__ == '__main__':
   tk.grid_rowconfigure(1, weight=2)
   tk.title(WINDOW_TITLE)
   left_frame = loot_menu.LootMenu(tk, 0, 0, loot_db_, loot_recommendation_callback)
-  db_frame = db_widget.DBWidget(tk, 0, 1, loot_db_, wcl_api_)
+  db_frame = db_widget.DBWidget(tk, 0, 1, loot_db_, wcl_api_, resolve_items)
 
   tk.mainloop()
   
