@@ -2,7 +2,7 @@ import tkinter
 
 class LootMenu:
   def __init__(self, root, gridx, gridy, loot_db, loot_recommendation_callback):
-    self.frame = tkinter.Frame(root, bd=0, relief=tkinter.SUNKEN)
+    self.frame = tkinter.Frame(root, bd=2, relief=tkinter.RAISED)
     self.frame.grid(column=gridx, row=gridy, sticky='nsew')
 
     self.loot_db = loot_db #keep a reference
@@ -22,13 +22,15 @@ class LootMenu:
     self.selected_raid_menu = tkinter.OptionMenu(self.frame, self.selected_raid, *self.raid_names)
     self.selected_boss_menu = tkinter.OptionMenu(self.frame, self.selected_boss, *self.boss_names)
     self.selected_item_menu = tkinter.OptionMenu(self.frame, self.selected_item, *self.item_names)
+    self.recommend_item_button = tkinter.Button(self.frame, text="Recommend Item!", command=loot_recommendation_callback)
 
     self.selected_raid.trace('w', self.selection_update)
     self.selected_boss.trace('w', self.selection_update)
 
     self.selected_raid_menu.grid(row=0, column=0)
-    self.selected_boss_menu.grid(row=0, column=1)
-    self.selected_item_menu.grid(row=1, column=0)
+    self.selected_boss_menu.grid(row=1, column=0)
+    self.selected_item_menu.grid(row=2, column=0)
+    self.recommend_item_button.grid(row=3, column=0)
 
   def selection_update(self, var, idx, mode):
     raid = 0 #reset if invalid state

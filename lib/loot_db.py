@@ -155,6 +155,47 @@ class LootDB:
     finally:
       conn.close()
   
+  def get_players(self):
+    try:
+      conn = sqlite3.connect(self.db_file)
+      conn.row_factory = sqlite3.Row
+      c = conn.cursor()
+      c.execute("SELECT * FROM players")
+      return c.fetchall()
+    except Exception as e:
+      print(e)
+    finally:
+      conn.close()
+  
+  def get_player_items_for_slot(self, player_id, slot):
+    print(player_id, slot)
+    try:
+      conn = sqlite3.connect(self.db_file)
+      conn.row_factory = sqlite3.Row
+      c = conn.cursor()
+      c.execute("""SELECT *
+                   FROM items a
+                   JOIN playergear b ON b.item = a.id
+                   WHERE b.player=?
+                       AND a.slot=?""", (player_id, slot))
+      return c.fetchall()
+    except Exception as e:
+      print(e)
+    finally:
+      conn.close()
+  
+  def get_item_by_id(self,item_id):
+    try:
+      conn = sqlite3.connect(self.db_file)
+      conn.row_factory = sqlite3.Row
+      c = conn.cursor()
+      c.execute("SELECT * FROM items WHERE id=?", (item_id, ))
+      return c.fetchone()
+    except Exception as e:
+      print(e)
+    finally:
+      conn.close()
+  
   def get_item_by_name(self, name):
     try:
       conn = sqlite3.connect(self.db_file)

@@ -4,7 +4,7 @@ UNRESOLVED_ITEM_TEXT = "Unresolved Items: %d"
 
 class DBWidget:
   def __init__(self, root, gridx, gridy, loot_db, wcl_api_handle, resolve_items):
-    self.frame = tkinter.Frame(root, bd=0, relief=tkinter.SUNKEN)
+    self.frame = tkinter.Frame(root, bd=2, relief=tkinter.RAISED)
     self.frame.grid(column=gridx, row=gridy, sticky='nsew')
     
     self.loot_db = loot_db #keep a reference

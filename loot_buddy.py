@@ -2,7 +2,7 @@ import os
 import tkinter
 import tkinter.filedialog
 import json
-from lib import loot_db, loot_menu, db_widget, wcl_api, wowhead_api, blizz_api
+from lib import loot_db, loot_menu, db_widget, wcl_api, wowhead_api, blizz_api, item_recommendation
 
 fpath = os.path.realpath(__file__)
 path = os.path.dirname(fpath)
@@ -82,6 +82,7 @@ def parse_tooltip(tooltip):
   return stats
 
 if __name__ == '__main__':
+  left_frame = None #jank forward declaration
   blizz_api_ = blizz_api.BlizzardApiHandle(BLIZZ_TOKEN_FILE, BLIZZ_SECRET_FILE)
   
   loot_db_ = loot_db.LootDB(DB_NAME)
@@ -91,7 +92,23 @@ if __name__ == '__main__':
 
 
   def loot_recommendation_callback():
-    None
+    if left_frame.selected_item.get() in left_frame.item_names:
+      item_id = left_frame.item_list[left_frame.item_names.index(left_frame.selected_item.get())][0] #get item id from name list
+    if not item_id:
+      print("Loot recommendation callback: Invalid item id")
+      return False
+    item = loot_db_.get_item_by_id(item_id)
+    players = loot_db_.get_players()
+    for player in players:
+      old_items = loot_db_.get_player_items_for_slot(player["id"], item["slot"])
+      if old_items:
+        for old_item in old_items:
+          item_recommendation.calculate_recommendation_score(player, item, old_item)
+      else:
+        print(player["name"] + " (" + str(player["id"]) + ") doesn't have item in slot: " + str(item["slot"]))
+
+
+    print(item['name'])
 
   def resolve_items():
     #Get and parse wowhead tooltips
