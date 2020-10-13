@@ -23,7 +23,11 @@ class LootMenu:
     self.selected_boss_menu = tkinter.OptionMenu(self.frame, self.selected_boss, *self.boss_names)
     self.selected_item_menu = tkinter.OptionMenu(self.frame, self.selected_item, *self.item_names)
     self.recommend_item_button = tkinter.Button(self.frame, text="Recommend Item!", command=loot_recommendation_callback)
-
+    
+    self.selected_raid_menu.config(width=25)
+    self.selected_boss_menu.config(width=25)
+    self.selected_item_menu.config(width=25)
+ 
     self.selected_raid.trace('w', self.selection_update)
     self.selected_boss.trace('w', self.selection_update)
 

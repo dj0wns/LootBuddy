@@ -2,7 +2,7 @@ import os
 import tkinter
 import tkinter.filedialog
 import json
-from lib import loot_db, loot_menu, db_widget, wcl_api, wowhead_api, blizz_api, item_recommendation
+from lib import loot_db, loot_menu, db_widget, wcl_api, wowhead_api, blizz_api, item_recommendation, output_widget
 
 fpath = os.path.realpath(__file__)
 path = os.path.dirname(fpath)
@@ -83,6 +83,7 @@ def parse_tooltip(tooltip):
 
 if __name__ == '__main__':
   left_frame = None #jank forward declaration
+  loot_menu_frame = None #jank forward declaration
   blizz_api_ = blizz_api.BlizzardApiHandle(BLIZZ_TOKEN_FILE, BLIZZ_SECRET_FILE)
   
   loot_db_ = loot_db.LootDB(DB_NAME)
@@ -92,23 +93,26 @@ if __name__ == '__main__':
 
 
   def loot_recommendation_callback():
-    if left_frame.selected_item.get() in left_frame.item_names:
-      item_id = left_frame.item_list[left_frame.item_names.index(left_frame.selected_item.get())][0] #get item id from name list
+    if loot_menu_frame.selected_item.get() in loot_menu_frame.item_names:
+      item_id = loot_menu_frame.item_list[loot_menu_frame.item_names.index(loot_menu_frame.selected_item.get())][0] #get item id from name list
     if not item_id:
       print("Loot recommendation callback: Invalid item id")
       return False
     item = loot_db_.get_item_by_id(item_id)
     players = loot_db_.get_players()
+    item_upgrade_list = []
     for player in players:
       old_items = loot_db_.get_player_items_for_slot(player["id"], item["slot"])
       if old_items:
         for old_item in old_items:
-          item_recommendation.calculate_recommendation_score(player, item, old_item)
+          item_upgrade_list.append(item_recommendation.calculate_recommendation_score(player, loot_db_, item, old_item))
+          
       else:
         print(player["name"] + " (" + str(player["id"]) + ") doesn't have item in slot: " + str(item["slot"]))
+    output_frame.update_text_box(item_upgrade_list)
+    
 
 
-    print(item['name'])
 
   def resolve_items():
     #Get and parse wowhead tooltips
@@ -131,14 +135,20 @@ if __name__ == '__main__':
   #left frame is item selector
   #right frame is best replacements + current item
   tk = tkinter.Tk()
-  tk.geometry("720x480")
-  tk.grid_columnconfigure(0, weight=1)
-  tk.grid_columnconfigure(1, weight=1)
-  tk.grid_rowconfigure(0, weight=10)
-  tk.grid_rowconfigure(1, weight=2)
+  tk.geometry("1280x720")
   tk.title(WINDOW_TITLE)
-  left_frame = loot_menu.LootMenu(tk, 0, 0, loot_db_, loot_recommendation_callback)
-  db_frame = db_widget.DBWidget(tk, 0, 1, loot_db_, wcl_api_, resolve_items)
+  tk.grid_columnconfigure(0, weight=0)
+  tk.grid_columnconfigure(1, weight=1)
+  tk.grid_rowconfigure(0, weight=1)
+  left_frame = tkinter.Frame(tk, bd=0, relief=tkinter.SUNKEN)
+  left_frame.grid(row=0, column=0, sticky=tkinter.N+tkinter.E+tkinter.W+tkinter.S)
+  left_frame.grid_rowconfigure(0, weight=1)
+  left_frame.grid_columnconfigure(0, weight=1)
+  
+  loot_menu_frame = loot_menu.LootMenu(left_frame, 0, 0, loot_db_, loot_recommendation_callback)
+  db_frame = db_widget.DBWidget(left_frame, 0, 1, loot_db_, wcl_api_, resolve_items)
+
+  output_frame = output_widget.OutputWidget(tk, 1, 0)
 
   tk.mainloop()
   
