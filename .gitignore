@@ -1,0 +1,12 @@
+# Key Files
+blizz_client.txt
+blizz_secret.txt
+wcl_client.txt
+wcl_secret.txt
+
+# Database
+loot.db
+
+__pycache__
+*/__pycache__/
+*/*/__pycache__
